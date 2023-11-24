@@ -144,12 +144,15 @@ class UniversalSimulation:
                  customer_count : int,
                  server_count : int,
                  service_avg: int,
-                 arrival_rate: int) -> None:
+                 arrival_rate: int,
+                 start = round(timeMod.time())) -> None:
 
         self.customer_count = customer_count
         self.server_count = server_count
         self.service_avg = service_avg
         self.arrival_rate = arrival_rate
+        self.start_time = start
+
         self.next_events = []
         self.customers = []
         self.time = 0
@@ -201,19 +204,22 @@ class UniversalSimulation:
         self.next_events[self.servers.index(chosen_serv)+1] = next_event_time
         return True
 
-    def time_jump(self) -> None:
+    def jump_next_event(self) -> List[int]:
         next_time = min(self.next_events)
         self.time = next_time
+
+        staged_events : List[int] = []
+        for i, event_time in enumerate(self.next_events):
+            if event_time == self.time:
+                staged_events.append(i)
+
+        return staged_events
 
     def run(self):
         # While there are still staged events...
         while min(self.next_events) < 999999999:
-            self.time_jump()
+            staged_events = self.jump_next_event()
 
-            staged_events : List[int] = []
-            for i, event_time in enumerate(self.next_events):
-                if event_time == self.time:
-                    staged_events.append(i)
 
             if staged_events[0] == 0:
                 self.birth_customer()
@@ -232,22 +238,25 @@ class UniversalSimulation:
             logging.info(str(cust))
         return
     
-    def output_results(self, dir_path : str = "../results/"):
-        file_name = dir_path + f"csv_results_{round(timeMod.time())}.csv"
+    def output_results(self, dir_path : str = "../../results/no-rank/"):
+        file_name = dir_path + f"customers_{self.start_time}.csv"
         with open(file_name, "w", encoding='utf-8') as file:
             for cust in self.customers:
                 file.write(cust.to_csv() + "\n")
 
 
 def main():
-    logging.basicConfig(filename= f'../../logs/no-rank/{round(timeMod.time())}.txt',
+
+    start_time = round(timeMod.time())
+    logging.basicConfig(filename= f'../../logs/no-rank/{start_time}.log',
                         encoding='utf-8',
                         level=logging.DEBUG)
     sim : UniversalSimulation = UniversalSimulation(
         100,
         5,
         100,
-        1/10
+        1/10,
+        start = start_time
     )
 
     sim.run()
