@@ -29,6 +29,19 @@ class PriorityMismatchError(Exception):
 
 
 class Customer:
+    """Class representing each a customer to be served
+    by a service. 
+
+    @attributes:
+        id -- the customers unique ID, ordered by birth, earlier<later
+        priority -- designating which servers it has access to
+                    can only access servers with a <= priority
+        birth_time -- the global time of customer creation and queue entering
+        death_time -- the global time a customer is finished being served
+        service_time -- the time spent being served
+        served_by -- the server ID of the instance serving the customer
+        rejected -- a bool containing whether the customer was rejected
+    """
     id : int = 0
 
     priority : int = 0
@@ -47,12 +60,23 @@ class Customer:
         self.priority = priority
 
     def reject(self, time : int) -> None:
+        """Used to set internal attributes to represent a customer has been rejected
+
+        @parameters
+            time - the global time of rejection
+        """
         self.rejected = True
         self.service_time = None
         self.served_by = None
         self.death_time = time
     
     def serve(self, server : 'UniversalServer', time: int) -> None:
+        """Used to set interal attributes to represent currently being served
+
+        @parameters:
+            server -- the server object which is serving the customer
+            time -- the global time a cutomer beings to be served
+        """
         if server.priority > self.priority:
             raise PriorityMismatchError(self.priority, server.priority)
 
@@ -60,6 +84,12 @@ class Customer:
         self.service_time = time
 
     def kill(self, time : int) -> None:
+        """Used to set internal parameters to represent a cutomer has
+        been completed an no longer needs to be considered
+
+        @parameters:
+            time -- the global time a customer is finished with
+        """
         self.death_time = time
 
     def __str__(self) -> str:
@@ -74,6 +104,11 @@ class Customer:
             f"{self.birth_time}"
 
     def to_csv(self) -> str:
+        """Used to represent the current state of the customer in CSV format:
+        the structure is as follows:
+        ID,Priority,Birth Time,Death Time,Rejected,ServerID(None if rejected),
+        Service Time(None if rejected),Death Time
+        """
         return f"{self.id},{self.priority},{self.birth_time}," \
         f"{self.rejected},{self.served_by},{self.service_time},{self.death_time}"
 
@@ -123,7 +158,7 @@ class UniversalServer:
         self.serve_time += (time-self.last_update_time)
         self.last_update_time = time
 
-class UniversalSimulation:
+class MMCCSimulation:
     customer_count : int
     server_count : int
     service_avg : int
@@ -251,7 +286,7 @@ def main():
     logging.basicConfig(filename= f'../../logs/no-rank/{start_time}.log',
                         encoding='utf-8',
                         level=logging.DEBUG)
-    sim : UniversalSimulation = UniversalSimulation(
+    sim : MMCCSimulation = MMCCSimulation(
         100,
         5,
         100,
