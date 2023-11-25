@@ -127,8 +127,9 @@ class UniversalServer:
 
     rands = []
 
-    def __init__(self, given_id : int) -> None:
+    def __init__(self, given_id : int, priority : int = 0) -> None:
         self.id = given_id
+        self.priority = priority
 
     def set_serve_time(self, rands : List[int]):
         self.rands = rands  # Python passes arrays by reference so this is just
@@ -198,6 +199,7 @@ class MMCCSimulation:
 
     def set_rand_array(self) -> None:
         self.rand_arrays = []
+
         self.rand_arrays.append([ceil(np.random.exponential((1/self.arrival_rate)-0.5))
                             for _ in range(self.customer_count)])
             # We adjust the exp average by -.5 as the ceil function increases the average by 0.5
@@ -205,7 +207,9 @@ class MMCCSimulation:
         self.customer_birth_times = self.rand_arrays[0].copy()
         self.next_events.append(self.customer_birth_times[0])
             # Add the first birth of customer to the event list
+        self.produce_server_rand_arrays()
 
+    def produce_server_rand_arrays(self):
         for _ in range(self.server_count):
             self.rand_arrays.append([ceil(np.random.exponential(self.service_avg-0.5))
                                 for _ in range(self.customer_count)])
@@ -238,6 +242,9 @@ class MMCCSimulation:
         next_event_time = chosen_serv.serve(customer, self.time)
         self.next_events[self.servers.index(chosen_serv)+1] = next_event_time
         return True
+
+    def get_available_servers(self, customer : Customer) -> List[UniversalServer]:
+        return [serv for serv in self.servers if serv.idle]
 
     def jump_next_event(self) -> List[int]:
         next_time = min(self.next_events)

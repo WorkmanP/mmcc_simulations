@@ -1,8 +1,11 @@
 """"""
 from assignment1 import (MMCCSimulation, Customer,
                         UniversalServer, PriorityMismatchError)
+from math import ceil
 from typing import List
+
 import time
+import numpy as np
 
 class M1M2MCCSimulation(MMCCSimulation):
     """"""
@@ -26,12 +29,26 @@ class M1M2MCCSimulation(MMCCSimulation):
                          arrival_rate,
                          start_time)
     
-    def set_rand_array(self):
-        print("test")
+    def produce_server_rand_arrays(self):
+        for priority, ammount in enumerate(self.server_ammounts):
+            for _ in range(ammount):
+                self.rand_arrays.append([ceil(np.random.exponential(self.service_avg[priority]))
+                                         for _ in range(self.customer_count)])
 
     def create_servers(self):
-        print("test2")
+        self.servers = []
+        curr_id = 0
+        for priority, ammount in enumerate(self.server_ammounts):
+            self.servers = [UniversalServer(curr_id + x, priority) for x in range(ammount)]
+            curr_id += 1
 
+        for i, server in enumerate(self.servers):
+            server.rands = self.rand_arrays[i+1].copy()
+            self.next_events.append(999999999)
+
+    def get_available_servers(self, customer : Customer) -> bool:
+        return [server for server in self.servers if (
+            server.idle and server.priority <= customer.priority)]
 
 def main():
     print("in main")
