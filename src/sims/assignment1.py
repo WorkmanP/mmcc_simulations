@@ -333,6 +333,15 @@ class MMCCSimulation:
         for cust in self.customers:
             logging.info(str(cust))
         return
+    
+    def find_loss_rate(self) -> float:
+        """Get the proprtion of customers lost"""
+        total_lost = 0
+        for cust in self.customers:
+            if cust.rejected:
+                total_lost += 1
+
+        return total_lost / len(self.customers)
 
     def output_results(self, dir_path : str = "../../results/no-rank/"):
         """Output the results of the simulation to a given file path. The given
@@ -373,6 +382,7 @@ def main():
 
     sim.run()
     sim.output_results()
+    print(sim.find_loss_rate())
     return
 
 if __name__ == "__main__":
