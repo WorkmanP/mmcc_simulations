@@ -64,7 +64,7 @@ class PriorityCustomer(Customer):
             f"Service Time: {self.service_time}, " \
             f"Death: {self.death_time}" 
 
-    def to_csv(self) -> str:-----------------------------------------------
+    def to_csv(self) -> str:
         """Used to represent the current state of the customer in CSV format:
         the structure is as follows:
         ID,Priority,Birth Time,Death Time,
