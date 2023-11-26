@@ -373,8 +373,8 @@ def main():
                         encoding='utf-8',
                         level=logging.DEBUG)
     sim : MMCCSimulation = MMCCSimulation(
-        100,
-        5,
+        1000,
+        16,
         100,
         1/10,
         start = start_time

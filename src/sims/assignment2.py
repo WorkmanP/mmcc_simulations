@@ -111,7 +111,6 @@ class PriorityServer(UniversalServer):
 class M1M2MCCSimulation(MMCCSimulation):
     """"""
     server_ammounts : List[int]
-    customer_priority_bias : List[float]
     service_avg : List[int] # Override old type as prioirities could have diff rates
     servers : List[PriorityServer] = []
 
@@ -119,18 +118,34 @@ class M1M2MCCSimulation(MMCCSimulation):
                  customer_count : int,
                  server_ammounts : List[int],
                  service_avg : List[float],
-                 arrival_rate : float,
-                 customer_priority_bias : List[float],
+                 arrival_rates : List[float],
                  start_time : int = round(time_module.time())
                  ) -> None:
         self.server_ammounts = server_ammounts
-        self.customer_priority_bias = customer_priority_bias
 
         super().__init__(customer_count,
                          sum(server_ammounts),
                          service_avg,
-                         arrival_rate,
+                         arrival_rates,
                          start_time)
+
+    def set_rand_array(self) -> None:
+        """Set the random arrays for the customer creation and the servers"""
+        self.rand_arrays = []
+
+        self.rand_arrays.append([ceil(np.random.exponential((1/self.arrival_rates[0])-0.5))
+                                 for _ in range(self.customer_count)])
+
+        self.customer_birth_times : List[int] = [].append(self.rand_arrays[0].copy)
+        self.next_events.append(self.customer_birth_times[0][0])
+        self.produce_server_rand_arrays()
+
+        for rate in self.arrival_rates[1:]:
+            values = ([ceil(npp.random.expontential(1/rate)-0.5)
+                                     for _ in range(self.customer_count)])
+            self.rand_arrays.append(values)
+            self.customer_birth_times.append(values.copy())
+
 
     def produce_server_rand_arrays(self):
         for priority, ammount in enumerate(self.server_ammounts):
@@ -149,24 +164,14 @@ class M1M2MCCSimulation(MMCCSimulation):
             server.rands = self.rand_arrays[i+1].copy()
             self.next_events.append(999999999)
 
-    def birth_customer(self) -> None:
-        cust_priority = self.gen_customer_priority()
-        customer = PriorityCustomer(self.time, len(self.customers), cust_priority)
+    def birth_customer(self, priority : int) -> None:
+        customer = PriorityCustomer(self.time, len(self.customers), priority)
         self.customers.append(customer)
 
         # As we don't have a queue, if every server is full, the customer is turned away
         self.assign_customer(customer)
         return customer
     
-    def gen_customer_priority(self) -> int:
-        rand_number = np.random.rand() * sum(self.customer_priority_bias)
-
-        boundary_val = 0
-        for index, value in enumerate(self.customer_priority_bias):
-            boundary_val += value
-            if boundary_val > rand_number:
-                return index
-
     def get_available_servers(self, customer : PriorityCustomer = None) -> List[UniversalServer]:
         if customer is None:
             raise TypeError("customer parameter can not be None")
@@ -185,6 +190,28 @@ class M1M2MCCSimulation(MMCCSimulation):
                 file.write(serv.to_csv() + "\n")
 
 
+    def run(self):
+        while min(self.next_events) < 999999:
+            staged_events = self.jump_next_event()
+
+            for index in staged_events:
+                if index > 1 and index < 1 + len(self.servers):
+                    self.servers[index-1].finish_serve(self.time)
+                    self.next_events[index] = 99999999
+                    continue
+                
+                if index == 0:
+                    priority = index
+                else:
+                    priority = index - 1 - len(self.servers)
+
+                self.birth_customer(priority)
+
+                if self.customer_birth_times[priority]:
+                    self.next_events[index] = self.time + self.customer_birth_times[priority].pop(0)
+                else:
+                    self.next_events[index] = 999999999
+
 def main():
     start_time = round(time_module.time())
     logging.basicConfig(filename= f'../../logs/rank/{start_time}.log',
@@ -195,8 +222,7 @@ def main():
         100,
         [5,5],
         [5,5],
-        0.5,
-        [0.5,0.5],
+        [0.3, 0.3],
         round(time_module.time()))
     sim.run()
     sim.output_results()
