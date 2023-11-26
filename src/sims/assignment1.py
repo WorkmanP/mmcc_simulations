@@ -8,25 +8,6 @@ import logging
 import time as timeMod
 import numpy as np
 
-class PriorityMismatchError(Exception):
-    """Exception raised when a customer is being served by a server
-    which they should not have access to.
-    
-    @attributes:
-        customer_priority -- the customers priority
-        server_priority -- the servers priority
-        message -- explaination of the error
-    """
-
-    def __init__(self, customer_priority : int, server_priority : int) -> None:
-        self.customer_priority = customer_priority
-        self.server_priority = server_priority
-
-        self.message =  f"""Customer does not have adequate priority to be served
-             by this server. ({customer_priority} < {server_priority})
-            """.strip("\n", "")
-        super().__init__(self.message)
-
 
 class Customer:
     """Class representing each a customer to be served
@@ -34,8 +15,6 @@ class Customer:
 
     @attributes:
         id -- the customers unique ID, ordered by birth, earlier<later
-        priority -- designating which servers it has access to
-                    can only access servers with a <= priority
         birth_time -- the global time of customer creation and queue entering
         death_time -- the global time a customer is finished being served
         service_time -- the time spent being served
@@ -43,8 +22,6 @@ class Customer:
         rejected -- a bool containing whether the customer was rejected
     """
     id : int = 0
-
-    priority : int = 0
 
     birth_time : int = 0
     death_time : int = 0
@@ -54,10 +31,9 @@ class Customer:
 
     rejected : bool = False
 
-    def __init__(self, time : int, given_id : int, priority: int = 0) -> None:
+    def __init__(self, time : int, given_id : int) -> None:
         self.birth_time = time
         self.id = given_id
-        self.priority = priority
 
     def reject(self, time : int) -> None:
         """Used to set internal attributes to represent a customer has been rejected
@@ -77,9 +53,6 @@ class Customer:
             server -- the server object which is serving the customer
             time -- the global time a cutomer beings to be served
         """
-        if server.priority > self.priority:
-            raise PriorityMismatchError(self.priority, server.priority)
-
         self.served_by = server.id
         self.service_time = time
 
@@ -100,36 +73,33 @@ class Customer:
             f"Death: {self.death_time}" 
 
     def __repr__(self) -> str:
-        return f"CustomerObject({self.id}, {self.priority}," \
-            f"{self.birth_time}"
+        return f"CustomerObject({self.id}," \
+            f"{self.birth_time})"
 
     def to_csv(self) -> str:
         """Used to represent the current state of the customer in CSV format:
         the structure is as follows:
-        ID,Priority,Birth Time,Death Time,Rejected,ServerID(None if rejected),
-        Service Time(None if rejected),Death Time
+        ID,Priority[not used for this simulation],Birth Time,Death Time,
+        Rejected,ServerID(None if rejected), Service Time(None if rejected),
+        Death Time
         """
-        return f"{self.id},{self.priority},{self.birth_time}," \
+        return f"{self.id},0,{self.birth_time}," \
         f"{self.rejected},{self.served_by},{self.service_time},{self.death_time}"
 
 class UniversalServer:
-    id : int = 0
+    id : int
     idle : bool = True
-
-    priority : int = 0
     current_customer : Customer | None = None
 
     serve_time : int = 0
     idle_time : int = 0
-
     last_update_time : int = 0
     cust_served : int = 0
 
     rands = []
 
-    def __init__(self, given_id : int, priority : int = 0) -> None:
+    def __init__(self, given_id : int) -> None:
         self.id = given_id
-        self.priority = priority
 
     def set_serve_time(self, rands : List[int]):
         self.rands = rands  # Python passes arrays by reference so this is just
@@ -158,6 +128,20 @@ class UniversalServer:
             return
         self.serve_time += (time-self.last_update_time)
         self.last_update_time = time
+
+    def __str__(self) -> str:
+        return f"Server ID: {self.id} " \
+            f"Idle: {self.idle}, Idle time: {self.idle_time}, " \
+            f"Current Customer: {repr(self.current_customer)}, " \
+            f"Customers Served: {self.cust_served}, " \
+            f"Total service time: {self.serve_time}"
+
+    def __repr__(self) -> str:
+        return f"UniversalServer({self.id})"
+
+    def to_csv(self) -> str:
+        return f"{self.id},0,{self.idle},{self.idle_time},{self.cust_served}," \
+            f"{self.serve_time}"
 
 class MMCCSimulation:
     customer_count : int
@@ -230,7 +214,7 @@ class MMCCSimulation:
         return customer
 
     def assign_customer(self, customer : Customer) -> bool:
-        available_servers = [serv for serv in self.servers if serv.idle]
+        available_servers = self.get_available_servers(customer)
 
         if len(available_servers) == 0:
             customer.reject(self.time)
@@ -243,7 +227,7 @@ class MMCCSimulation:
         self.next_events[self.servers.index(chosen_serv)+1] = next_event_time
         return True
 
-    def get_available_servers(self, customer : Customer) -> List[UniversalServer]:
+    def get_available_servers(self, customer : Customer = None)-> List[UniversalServer]:
         return [serv for serv in self.servers if serv.idle]
 
     def jump_next_event(self) -> List[int]:
@@ -279,7 +263,7 @@ class MMCCSimulation:
         for cust in self.customers:
             logging.info(str(cust))
         return
-    
+
     def output_results(self, dir_path : str = "../../results/no-rank/"):
         file_name = dir_path + f"customers_{self.start_time}.csv"
         with open(file_name, "w", encoding='utf-8') as file:
