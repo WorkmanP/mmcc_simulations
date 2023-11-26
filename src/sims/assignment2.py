@@ -31,12 +31,28 @@ class PriorityMismatchError(Exception):
         super().__init__(self.message)
 
 class PriorityCustomer(Customer):
+    """Overriding the Customer class adding priority functionality and service
+    A customer can only use servers of a less than or equal to priority
+
+    @parameters:
+        priority -- A represention of which rank of servers a customer can use
+    """
     priority : int
     def __init__(self, time: int, given_id: int, priority: int = 0) -> None:
         self.priority = priority
         super().__init__(time, given_id)
 
     def serve(self, server : 'PriorityServer', time : int):
+        """Overrides the Customer serve method. Compares the priority of
+        the customer and the server, and judges if they are compatable
+
+        @parameters:
+            server -- The priority server to serve the customer
+            time -- The simulation time of the start of the service
+
+        @raises:
+            PriorityMismatchError -- Where server and customer priority is incompatable
+        """
         if server.priority > self.priority:
             raise PriorityMismatchError(self.priority, server.priority)
         super().serve(server, time)
@@ -48,10 +64,10 @@ class PriorityCustomer(Customer):
             f"Service Time: {self.service_time}, " \
             f"Death: {self.death_time}" 
 
-    def to_csv(self) -> str:
+    def to_csv(self) -> str:-----------------------------------------------
         """Used to represent the current state of the customer in CSV format:
         the structure is as follows:
-        ID,Priority[not used for this simulation],Birth Time,Death Time,
+        ID,Priority,Birth Time,Death Time,
         Rejected,ServerID(None if rejected), Service Time(None if rejected),
         Death Time
         """
@@ -61,6 +77,11 @@ class PriorityCustomer(Customer):
 
 
 class PriorityServer(UniversalServer):
+    """Overrides the UniversalServer class adding priority functionality
+    a server can serve only serve customers with a >= priority
+
+    @parameters:
+        priority -- A representation of which customers the server should serve"""
     priority : int
 
     def __init__(self, given_id: int, priority: int = 0) -> None:
@@ -78,8 +99,14 @@ class PriorityServer(UniversalServer):
         return f"PriorityServer({self.id}, {self.priority})"
 
     def to_csv(self) -> str:
+        """Converts the server type to a CSV, the representation is as follows:
+        ID,Priority,Idle,Idle_time,CustomersServed,TotalServeTime
+
+        @returns:
+            A CSV representation of the state and historical use of the server
+        """
         return f"{self.id},{self.priority},{self.idle},{self.idle_time}," \
-        f"{self.cust_served} {self.serve_time}"
+            f"{self.cust_served},{self.serve_time}"
 
 class M1M2MCCSimulation(MMCCSimulation):
     """"""

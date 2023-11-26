@@ -77,7 +77,7 @@ class Customer:
             f"{self.birth_time})"
 
     def to_csv(self) -> str:
-        """Used to represent the current state of the customer in CSV format:
+        """Represent the current state of the customer in CSV format:
         the structure is as follows:
         ID,Priority[not used for this simulation],Birth Time,Death Time,
         Rejected,ServerID(None if rejected), Service Time(None if rejected),
@@ -102,10 +102,25 @@ class UniversalServer:
         self.id = given_id
 
     def set_serve_time(self, rands : List[int]):
+        """Set the given random array to the servers internal memory.
+        The memory is removed throughout the runtime of the program.
+
+        @parameters:
+            rands -- The time steps required to complete each service 
+        """
         self.rands = rands  # Python passes arrays by reference so this is just
                             # for ease of access / code clarity
 
     def serve(self, customer : Customer, time : int) -> int:
+        """Set a server to serve a customer
+
+        @parameters:
+            customer -- The customer to be served by the server
+            time -- The time of the service start
+
+        @returns:
+            The time thaat the server completes its service
+        """
         self.update(time)
         time_to_serve = self.rands.pop(0)
         customer.serve(self, time_to_serve)
@@ -116,12 +131,23 @@ class UniversalServer:
         return time_to_serve + time
 
     def finish_serve(self, time : int) -> None:
+        """Kill the current customer and clean-up interal attributes at
+        time of completed service
+
+        @parameters:
+            time -- the simulation time of the completed service
+        """
         self.current_customer.kill(time)
         self.current_customer = None
         self.update(time)
         self.idle = True
 
     def update(self, time : int) -> None:
+        """Update time dependent attributes when changing idle state
+
+        @parameters:
+            time -- the simulation time of the update.
+        """
         if self.idle:
             self.idle_time += (time-self.last_update_time)
             self.last_update_time = time
@@ -140,10 +166,28 @@ class UniversalServer:
         return f"UniversalServer({self.id})"
 
     def to_csv(self) -> str:
+        """Convert the server information into csv format"""
         return f"{self.id},0,{self.idle},{self.idle_time},{self.cust_served}," \
             f"{self.serve_time}"
 
 class MMCCSimulation:
+    """The MMCCSimulation body. A simulation for a service and customers,
+    where once all services are filled, customers are rejected completely.
+    Used for Modelling and Simulation CA1, assignment 1.
+
+    @attributes:
+        customer_count -- The number of customers the simulation runs for
+        server_count -- The number of servers for the simulation
+        service_avg -- The exponential-average service time
+        arrival_rate -- The exponential-average customer arrival time
+        rand_arrays -- Arrays containing the random values above.
+                    -- Note, as apposed to server-rands, this does not change
+                    -- at run time.
+        servers -- The list of all active servers
+        customers -- The list of all Alive and Killed customers
+        customer_birth_times -- The times a customer is born
+        next_events -- An array of all future staged event timings
+    """
     customer_count : int
     server_count : int
     service_avg : int
@@ -182,6 +226,7 @@ class MMCCSimulation:
 
 
     def set_rand_array(self) -> None:
+        """Set the random arrays to the interal attributes of the class"""
         self.rand_arrays = []
 
         self.rand_arrays.append([ceil(np.random.exponential((1/self.arrival_rate)-0.5))
@@ -194,18 +239,22 @@ class MMCCSimulation:
         self.produce_server_rand_arrays()
 
     def produce_server_rand_arrays(self):
+        """Create the server random arrays values"""
         for _ in range(self.server_count):
             self.rand_arrays.append([ceil(np.random.exponential(self.service_avg-0.5))
                                 for _ in range(self.customer_count)])
             # We adjust the exp average by -.5 as the ceil function increases the average by 0.5
 
     def create_servers(self) -> None:
+        """Initialise all the servers for the class"""
         self.servers = [UniversalServer(x) for x in range(self.server_count)]
         for i, serv in enumerate(self.servers):
             serv.rands = self.rand_arrays[i+1].copy()
             self.next_events.append(999999999)
 
     def birth_customer(self) -> None:
+        """Initialise a customer at a given time. Only produced one instance
+        as it is only run when a customer 'joins' the simulation"""
         customer = Customer(self.time, len(self.customers))
         self.customers.append(customer)
 
@@ -214,6 +263,12 @@ class MMCCSimulation:
         return customer
 
     def assign_customer(self, customer : Customer) -> bool:
+        """Assign a customer to a server. The current method choses the server
+        with the lowest ID. If no available server is found, kills the customer
+
+        @parameters:
+            customer -- The customer to be served
+        """
         available_servers = self.get_available_servers(customer)
 
         if len(available_servers) == 0:
@@ -221,16 +276,30 @@ class MMCCSimulation:
             return False
 
         # The manner of choosing which server to pick can be assigned here, but
-        # for now, we'll just go for the first
+        # for now, we'll just go for the lowest ID
         chosen_serv = available_servers[0]
         next_event_time = chosen_serv.serve(customer, self.time)
         self.next_events[self.servers.index(chosen_serv)+1] = next_event_time
         return True
 
     def get_available_servers(self, customer : Customer = None)-> List[UniversalServer]:
+        """Produce a list of all available servers.
+
+        @parameters:
+            customer -- the Customer to be served
+
+        @returns:
+            A list of all the available server objects
+        """
         return [serv for serv in self.servers if serv.idle]
 
     def jump_next_event(self) -> List[int]:
+        """Move the simulation time to the next staged event. Probably less
+        efficient than a for loop, but hey ho.
+
+        @returns:
+            A list of all the indices of staged events that has been jumped to
+        """
         next_time = min(self.next_events)
         self.time = next_time
 
@@ -242,10 +311,11 @@ class MMCCSimulation:
         return staged_events
 
     def run(self):
+        """Run the MMCC Simulation with the given parameters
+        """
         # While there are still staged events...
         while min(self.next_events) < 999999999:
             staged_events = self.jump_next_event()
-
 
             if staged_events[0] == 0:
                 self.birth_customer()
@@ -265,6 +335,17 @@ class MMCCSimulation:
         return
 
     def output_results(self, dir_path : str = "../../results/no-rank/"):
+        """Output the results of the simulation to a given file path. The given
+        path must contain two directories, 'customers' and 'servers'. The file outputs
+        are in csv formats.
+
+        @parameters:
+            dir_path -- The Directory to output the files to
+
+        @outputs:
+            Two CSV files {time_since_unix_epoch}.csv in servers and customers
+            containing the CSV representations of all servers andd customers respectively
+        """
         file_name = dir_path + f"customers/{self.start_time}.csv"
         with open(file_name, "w", encoding='utf-8') as file:
             for cust in self.customers:
@@ -277,7 +358,7 @@ class MMCCSimulation:
 
 
 def main():
-
+    """The main body of the program, called if program run as __main__"""
     start_time = round(timeMod.time())
     logging.basicConfig(filename= f'../../logs/no-rank/{start_time}.log',
                         encoding='utf-8',
