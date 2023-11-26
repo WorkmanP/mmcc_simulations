@@ -3,6 +3,8 @@
 from math import ceil
 from typing import List
 
+import logging
+
 import time as time_module
 import numpy as np
 
@@ -84,7 +86,7 @@ class M1M2MCCSimulation(MMCCSimulation):
     server_ammounts : List[int]
     customer_priority_bias : List[float]
     service_avg : List[int] # Override old type as prioirities could have diff rates
-    servers : PriorityServer
+    servers : List[PriorityServer] = []
 
     def __init__(self,
                  customer_count : int,
@@ -110,10 +112,10 @@ class M1M2MCCSimulation(MMCCSimulation):
                                          for _ in range(self.customer_count)])
 
     def create_servers(self):
-        self.servers = []
         curr_id = 0
         for priority, ammount in enumerate(self.server_ammounts):
-            self.servers = [PriorityServer(curr_id + x, priority) for x in range(ammount)]
+            for x in range(ammount):
+                self.servers.append(PriorityServer(curr_id + x, priority))
             curr_id += 1
 
         for i, server in enumerate(self.servers):
@@ -145,20 +147,30 @@ class M1M2MCCSimulation(MMCCSimulation):
             server.idle and server.priority <= customer.priority)]
 
     def output_results(self, dir_path : str = "../../results/rank/"):
-        file_name = dir_path + f"customers_{self.start_time}.csv"
+        file_name = dir_path + f"customers/{self.start_time}.csv"
         with open(file_name, "w", encoding='utf-8') as file:
             for cust in self.customers:
                 file.write(cust.to_csv() + "\n")
 
+        file_name = dir_path + f"servers/{self.start_time}.csv"
+        with open(file_name, "w", encoding='utf-8') as file:
+            for serv in self.servers:
+                file.write(serv.to_csv() + "\n")
+
+
 def main():
+    start_time = round(time_module.time())
+    logging.basicConfig(filename= f'../../logs/rank/{start_time}.log',
+                        encoding='utf-8',
+                        level=logging.DEBUG)
+
     sim : M1M2MCCSimulation = M1M2MCCSimulation(
-        10,
+        100,
         [5,5],
         [5,5],
         0.5,
         [0.5,0.5],
         round(time_module.time()))
-    
     sim.run()
     sim.output_results()
     return

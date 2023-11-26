@@ -265,10 +265,15 @@ class MMCCSimulation:
         return
 
     def output_results(self, dir_path : str = "../../results/no-rank/"):
-        file_name = dir_path + f"customers_{self.start_time}.csv"
+        file_name = dir_path + f"customers/{self.start_time}.csv"
         with open(file_name, "w", encoding='utf-8') as file:
             for cust in self.customers:
                 file.write(cust.to_csv() + "\n")
+
+        file_name = dir_path + f"servers/{self.start_time}.csv"
+        with open(file_name, "w", encoding='utf-8') as file:
+            for serv in self.servers:
+                file.write(serv.to_csv() + "\n")
 
 
 def main():
