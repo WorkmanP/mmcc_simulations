@@ -1,11 +1,9 @@
 import math
 
-def main(birth_rate : float, max_servers : int, service_rate : float):
+def test(birth_rate : float, max_servers : int, service_rate : float):
     """Simluate a 16 server MMCC queue where the call duration lasts
     an expoential average of 100s."""
-    
-    servers_filled : int = 0
-    lambda_k : float = get_spec_birth_rate(birth_rate, max_servers - servers_filled)
+    print(loss_rate(birth_rate, service_rate, max_servers))
 
 def get_spec_birth_rate(br : float, servers_empty : int) -> float:
     if servers_empty:
@@ -17,7 +15,6 @@ def get_spec_death_rate(service_rate : float, servers_filled : int, max_servers 
         return 0.0
     return service_rate * servers_filled
 
-
 def find_p_nought(br : float, sr : float, max_servers : int) -> float:
     inverse = 0
     for k in range(max_servers + 1):
@@ -28,7 +25,7 @@ def find_p_nought(br : float, sr : float, max_servers : int) -> float:
     return 1/inverse
 
 def find_p_k(br : float, sr : float, k : int, p_nought : float):
-    temp = (bt / sr) ** k
+    temp = (br / sr) ** k
     temp = temp / math.factorial(k)
     return p_nought * temp
 
@@ -43,5 +40,5 @@ def loss_rate(br : float, sr: float, max_servers : int) -> float:
 
     return numerator / denominator
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    test(0.1, 16, 0.01)
