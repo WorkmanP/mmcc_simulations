@@ -45,6 +45,7 @@ class Customer:
         self.service_time = None
         self.served_by = None
         self.death_time = time
+        logging.info(f"Rejecting and killing customer {repr(self)}")
     
     def serve(self, server : 'UniversalServer', time: int) -> None:
         """Used to set interal attributes to represent currently being served
@@ -55,6 +56,7 @@ class Customer:
         """
         self.served_by = server.id
         self.service_time = time
+        logging.info(f"Serving customer {repr(self)} with server: {repr(server)}")
 
     def kill(self, time : int) -> None:
         """Used to set internal parameters to represent a cutomer has
@@ -64,6 +66,7 @@ class Customer:
             time -- the global time a customer is finished with
         """
         self.death_time = time
+        logging.info(f"Killing customer {repr(self)}")
 
     def __str__(self) -> str:
         return f"Customer ID: {self.id} " \
@@ -110,6 +113,7 @@ class UniversalServer:
         """
         self.rands = rands  # Python passes arrays by reference so this is just
                             # for ease of access / code clarity
+        logging.info(f"Set server: {repr(self)} random string")
 
     def serve(self, customer : Customer, time : int) -> int:
         """Set a server to serve a customer
@@ -127,6 +131,9 @@ class UniversalServer:
         self.current_customer = customer
         self.idle = False
         self.cust_served += 1
+        string = f"Assigned server: {repr(self)} customer: {repr(customer)}. Time to serve: " \
+                f"{time_to_serve}, finish time: {time + time_to_serve}"
+        logging.info(string)
 
         return time_to_serve + time
 
@@ -137,6 +144,8 @@ class UniversalServer:
         @parameters:
             time -- the simulation time of the completed service
         """
+        logging.info(f"Completed server: {repr(self)}, service of customer: "
+                     f"{repr(self.current_customer)}")
         self.current_customer.kill(time)
         self.current_customer = None
         self.update(time)
@@ -148,6 +157,7 @@ class UniversalServer:
         @parameters:
             time -- the simulation time of the update.
         """
+        logging.info(f"Updating server: {repr(self)} internal attributes")
         if self.idle:
             self.idle_time += (time-self.last_update_time)
             self.last_update_time = time
@@ -228,7 +238,7 @@ class MMCCSimulation:
     def set_rand_array(self) -> None:
         """Set the random arrays to the interal attributes of the class"""
         self.rand_arrays = []
-
+        logging.info("Setting random arrays for the simulation")
         self.rand_arrays.append([ceil(np.random.exponential((1/self.arrival_rate)-0.5))
                             for _ in range(self.customer_count)])
             # We adjust the exp average by -.5 as the ceil function increases the average by 0.5
@@ -237,6 +247,7 @@ class MMCCSimulation:
         self.next_events.append(self.customer_birth_times[0])
             # Add the first birth of customer to the event list
         self.produce_server_rand_arrays()
+        logging.info("Finished random arrays for the simulation")
 
     def produce_server_rand_arrays(self):
         """Create the server random arrays values"""
@@ -244,6 +255,7 @@ class MMCCSimulation:
             self.rand_arrays.append([ceil(np.random.exponential(self.service_avg-0.5))
                                 for _ in range(self.customer_count)])
             # We adjust the exp average by -.5 as the ceil function increases the average by 0.5
+        logging.info("Finished setting server random arrays")
 
     def create_servers(self) -> None:
         """Initialise all the servers for the class"""
@@ -251,13 +263,15 @@ class MMCCSimulation:
         for i, serv in enumerate(self.servers):
             serv.rands = self.rand_arrays[i+1].copy()
             self.next_events.append(999999999)
+            logging.info(f"Finished initialising server: {repr(serv)}")
 
     def birth_customer(self) -> None:
         """Initialise a customer at a given time. Only produced one instance
         as it is only run when a customer 'joins' the simulation"""
         customer = Customer(self.time, len(self.customers))
         self.customers.append(customer)
-
+        
+        logging.info(f"Created customer: {repr(customer)}")
         # As we don't have a queue, if every server is full, the customer is turned away
         self.assign_customer(customer)
         return customer
@@ -272,11 +286,13 @@ class MMCCSimulation:
         available_servers = self.get_available_servers(customer)
 
         if len(available_servers) == 0:
+            logging.info(f"No available servers at this time for customer {repr(customer)}")
             customer.reject(self.time)
             return False
 
         # The manner of choosing which server to pick can be assigned here, but
         # for now, we'll just go for the lowest ID
+        logging.info(f"Available servers found for customer {repr(customer)}")
         chosen_serv = available_servers[0]
         next_event_time = chosen_serv.serve(customer, self.time)
         self.next_events[self.servers.index(chosen_serv)+1] = next_event_time
@@ -301,6 +317,7 @@ class MMCCSimulation:
             A list of all the indices of staged events that has been jumped to
         """
         next_time = min(self.next_events)
+        logging.info(f"Moving time forward: {self.time} -> {next_time}")
         self.time = next_time
 
         staged_events : List[int] = []
@@ -308,6 +325,7 @@ class MMCCSimulation:
             if event_time == self.time:
                 staged_events.append(i)
 
+        logging.info(f"Staged event(s) found at index {str(staged_events)}")
         return staged_events
 
     def run(self):
@@ -330,8 +348,21 @@ class MMCCSimulation:
                 self.servers[index-1].finish_serve(self.time)
                 self.next_events[index] = 999999999
 
+        for server in self.servers:
+            server.update(self.time)
+            # Update to include end of service stint.
+
+        logging.info("Simulation Completed:")
+        logging.info("Final states:")
+        logging.info("Customers:")
         for cust in self.customers:
             logging.info(str(cust))
+        
+        logging.info("Servers:")
+        for serv in self.servers:
+            logging.info(str(serv))
+
+        logging.info(f"Loss rate: {str(self.find_loss_rate())}")
         return
     
     def find_loss_rate(self) -> float:
@@ -373,9 +404,9 @@ def main():
                         encoding='utf-8',
                         level=logging.DEBUG)
     sim : MMCCSimulation = MMCCSimulation(
-        1000,
-        15,
-        100,
+        10,
+        5,
+        200,
         1/10,
         start = start_time
     )
