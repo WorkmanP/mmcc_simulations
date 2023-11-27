@@ -1,0 +1,121 @@
+INFO:root:Initialising simulation
+INFO:root:Setting random arrays for the simulation
+INFO:root:Finished setting server random arrays
+INFO:root:Finished random arrays for the simulation
+INFO:root:Finished initialising server: UniversalServer(0)
+INFO:root:Finished initialising server: UniversalServer(1)
+INFO:root:Finished initialising server: UniversalServer(2)
+INFO:root:Finished initialising server: UniversalServer(3)
+INFO:root:Finished initialising server: UniversalServer(4)
+INFO:root:Running simulation
+INFO:root:Moving time forward: 0 -> 8
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(0,8)
+INFO:root:Available servers found for customer CustomerObject(0,8)
+INFO:root:Updating server: UniversalServer(0) internal attributes
+INFO:root:Serving customer CustomerObject(0,8) with server: UniversalServer(0)
+INFO:root:Assigned server: UniversalServer(0) customer: CustomerObject(0,8). Time to serve: 634, finish time: 642
+INFO:root:Moving time forward: 8 -> 13
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(1,13)
+INFO:root:Available servers found for customer CustomerObject(1,13)
+INFO:root:Updating server: UniversalServer(1) internal attributes
+INFO:root:Serving customer CustomerObject(1,13) with server: UniversalServer(1)
+INFO:root:Assigned server: UniversalServer(1) customer: CustomerObject(1,13). Time to serve: 554, finish time: 567
+INFO:root:Moving time forward: 13 -> 22
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(2,22)
+INFO:root:Available servers found for customer CustomerObject(2,22)
+INFO:root:Updating server: UniversalServer(2) internal attributes
+INFO:root:Serving customer CustomerObject(2,22) with server: UniversalServer(2)
+INFO:root:Assigned server: UniversalServer(2) customer: CustomerObject(2,22). Time to serve: 134, finish time: 156
+INFO:root:Moving time forward: 22 -> 35
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(3,35)
+INFO:root:Available servers found for customer CustomerObject(3,35)
+INFO:root:Updating server: UniversalServer(3) internal attributes
+INFO:root:Serving customer CustomerObject(3,35) with server: UniversalServer(3)
+INFO:root:Assigned server: UniversalServer(3) customer: CustomerObject(3,35). Time to serve: 251, finish time: 286
+INFO:root:Moving time forward: 35 -> 36
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(4,36)
+INFO:root:Available servers found for customer CustomerObject(4,36)
+INFO:root:Updating server: UniversalServer(4) internal attributes
+INFO:root:Serving customer CustomerObject(4,36) with server: UniversalServer(4)
+INFO:root:Assigned server: UniversalServer(4) customer: CustomerObject(4,36). Time to serve: 46, finish time: 82
+INFO:root:Moving time forward: 36 -> 38
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(5,38)
+INFO:root:No available servers at this time for customer CustomerObject(5,38)
+INFO:root:Rejecting and killing customer CustomerObject(5,38)
+INFO:root:Moving time forward: 38 -> 46
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(6,46)
+INFO:root:No available servers at this time for customer CustomerObject(6,46)
+INFO:root:Rejecting and killing customer CustomerObject(6,46)
+INFO:root:Moving time forward: 46 -> 54
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(7,54)
+INFO:root:No available servers at this time for customer CustomerObject(7,54)
+INFO:root:Rejecting and killing customer CustomerObject(7,54)
+INFO:root:Moving time forward: 54 -> 65
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(8,65)
+INFO:root:No available servers at this time for customer CustomerObject(8,65)
+INFO:root:Rejecting and killing customer CustomerObject(8,65)
+INFO:root:Moving time forward: 65 -> 76
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Created customer: CustomerObject(9,76)
+INFO:root:No available servers at this time for customer CustomerObject(9,76)
+INFO:root:Rejecting and killing customer CustomerObject(9,76)
+INFO:root:Moving time forward: 76 -> 82
+INFO:root:Staged event(s) found at index [5]
+INFO:root:Completed server: UniversalServer(4) service of customer: CustomerObject(4,36)
+INFO:root:Killing customer CustomerObject(4,36)
+INFO:root:Updating server: UniversalServer(4) internal attributes
+INFO:root:Moving time forward: 82 -> 156
+INFO:root:Staged event(s) found at index [3]
+INFO:root:Completed server: UniversalServer(2) service of customer: CustomerObject(2,22)
+INFO:root:Killing customer CustomerObject(2,22)
+INFO:root:Updating server: UniversalServer(2) internal attributes
+INFO:root:Moving time forward: 156 -> 286
+INFO:root:Staged event(s) found at index [4]
+INFO:root:Completed server: UniversalServer(3) service of customer: CustomerObject(3,35)
+INFO:root:Killing customer CustomerObject(3,35)
+INFO:root:Updating server: UniversalServer(3) internal attributes
+INFO:root:Moving time forward: 286 -> 567
+INFO:root:Staged event(s) found at index [2]
+INFO:root:Completed server: UniversalServer(1) service of customer: CustomerObject(1,13)
+INFO:root:Killing customer CustomerObject(1,13)
+INFO:root:Updating server: UniversalServer(1) internal attributes
+INFO:root:Moving time forward: 567 -> 642
+INFO:root:Staged event(s) found at index [1]
+INFO:root:Completed server: UniversalServer(0) service of customer: CustomerObject(0,8)
+INFO:root:Killing customer CustomerObject(0,8)
+INFO:root:Updating server: UniversalServer(0) internal attributes
+INFO:root:Updating server: UniversalServer(0) internal attributes
+INFO:root:Updating server: UniversalServer(1) internal attributes
+INFO:root:Updating server: UniversalServer(2) internal attributes
+INFO:root:Updating server: UniversalServer(3) internal attributes
+INFO:root:Updating server: UniversalServer(4) internal attributes
+INFO:root:Simulation Completed:
+INFO:root:Final states:
+INFO:root:Simulation time: 642
+INFO:root:Customers:
+INFO:root:Customer ID: 0 Birth: 8, Rejected: False, Server ID: 0, Service Time: 634, Death: 642
+INFO:root:Customer ID: 1 Birth: 13, Rejected: False, Server ID: 1, Service Time: 554, Death: 567
+INFO:root:Customer ID: 2 Birth: 22, Rejected: False, Server ID: 2, Service Time: 134, Death: 156
+INFO:root:Customer ID: 3 Birth: 35, Rejected: False, Server ID: 3, Service Time: 251, Death: 286
+INFO:root:Customer ID: 4 Birth: 36, Rejected: False, Server ID: 4, Service Time: 46, Death: 82
+INFO:root:Customer ID: 5 Birth: 38, Rejected: True, Server ID: None, Service Time: None, Death: 38
+INFO:root:Customer ID: 6 Birth: 46, Rejected: True, Server ID: None, Service Time: None, Death: 46
+INFO:root:Customer ID: 7 Birth: 54, Rejected: True, Server ID: None, Service Time: None, Death: 54
+INFO:root:Customer ID: 8 Birth: 65, Rejected: True, Server ID: None, Service Time: None, Death: 65
+INFO:root:Customer ID: 9 Birth: 76, Rejected: True, Server ID: None, Service Time: None, Death: 76
+INFO:root:Servers:
+INFO:root:Server ID: 0 Idle: True, Idle time: 8, Current Customer: None, Customers Served: 1, Total service time: 634
+INFO:root:Server ID: 1 Idle: True, Idle time: 88, Current Customer: None, Customers Served: 1, Total service time: 554
+INFO:root:Server ID: 2 Idle: True, Idle time: 508, Current Customer: None, Customers Served: 1, Total service time: 134
+INFO:root:Server ID: 3 Idle: True, Idle time: 391, Current Customer: None, Customers Served: 1, Total service time: 251
+INFO:root:Server ID: 4 Idle: True, Idle time: 596, Current Customer: None, Customers Served: 1, Total service time: 46
+INFO:root:Loss rate: 0.5

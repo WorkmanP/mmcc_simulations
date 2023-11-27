@@ -122,12 +122,15 @@ class M1M2MCCSimulation(MMCCSimulation):
                  start_time : int = round(time_module.time())
                  ) -> None:
         self.server_ammounts = server_ammounts
-
+        self.arrival_rates = arrival_rates
         super().__init__(customer_count,
                          sum(server_ammounts),
                          service_avg,
                          arrival_rates,
                          start_time)
+        
+        del(self.arrival_rate)
+        
 
     def set_rand_array(self) -> None:
         """Set the random arrays for the customer creation and the servers"""
@@ -141,7 +144,7 @@ class M1M2MCCSimulation(MMCCSimulation):
         self.produce_server_rand_arrays()
 
         for rate in self.arrival_rates[1:]:
-            values = ([ceil(npp.random.expontential(1/rate)-0.5)
+            values = ([ceil(np.random.exponential(1/rate)-0.5)
                                      for _ in range(self.customer_count)])
             self.rand_arrays.append(values)
             self.customer_birth_times.append(values.copy())
@@ -171,7 +174,7 @@ class M1M2MCCSimulation(MMCCSimulation):
         # As we don't have a queue, if every server is full, the customer is turned away
         self.assign_customer(customer)
         return customer
-    
+
     def get_available_servers(self, customer : PriorityCustomer = None) -> List[UniversalServer]:
         if customer is None:
             raise TypeError("customer parameter can not be None")
@@ -230,4 +233,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
