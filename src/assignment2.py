@@ -63,6 +63,10 @@ class PriorityCustomer(Customer):
             f"Server ID: {self.served_by}, " \
             f"Service Time: {self.service_time}, " \
             f"Death: {self.death_time}" 
+    
+    def __repr__(self) -> str:
+        return f"CustomerObject({self.id},{self.priority}," \
+            f"{self.birth_time})"
 
     def to_csv(self) -> str:
         """Used to represent the current state of the customer in CSV format:
@@ -176,9 +180,10 @@ class M1M2MCCSimulation(MMCCSimulation):
 
     def get_available_servers(self, customer : PriorityCustomer = None) -> List[UniversalServer]:
         if customer is None:
-            raise TypeError("customer parameter can not be None")
-        return [server for server in self.servers if (
+            raise TypeError("customer can not be None")
+        output = [server for server in self.servers if (
             server.idle and server.priority <= customer.priority)]
+        return output
 
     def output_results(self, dir_path : str = "../results/rank/"):
         file_name = dir_path + f"customers/{self.start_time}.csv"
@@ -205,7 +210,7 @@ class M1M2MCCSimulation(MMCCSimulation):
                 if index == 0:
                     priority = index
                 else:
-                    priority = index - 1 - len(self.servers)
+                    priority = index - len(self.servers)
 
                 self.birth_customer(priority)
 

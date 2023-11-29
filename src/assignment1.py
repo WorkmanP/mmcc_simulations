@@ -27,7 +27,7 @@ class Customer:
     death_time : int = 0
 
     service_time : int | None = 0
-    served_by : int | None
+    served_by : int | None = None
 
     rejected : bool = False
 
