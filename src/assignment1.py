@@ -1,6 +1,6 @@
 '''
 '''
-from math import ceil
+from math import ceil, exp
 from typing import List
 
 import logging
@@ -219,7 +219,7 @@ class MMCCSimulation:
                  customer_count : int,
                  server_count : int,
                  service_avg: int,
-                 arrival_rate: int,
+                 arrival_rate: float,
                  start = round(timeMod.time())) -> None:
         logging.info("Initialising simulation")
         self.customer_count = customer_count
@@ -240,9 +240,7 @@ class MMCCSimulation:
         """Set the random arrays to the interal attributes of the class"""
         self.rand_arrays = []
         logging.info("Setting random arrays for the simulation")
-        self.rand_arrays.append([ceil(np.random.exponential((1/self.arrival_rate-0.5)))
-                            for _ in range(self.customer_count)])
-            # We adjust the exp average by -.5 as the ceil function increases the average by 0.5
+        self.rand_arrays.append(discrete_exponential(1/self.arrival_rate, self.customer_count))
 
         self.customer_birth_times = self.rand_arrays[0].copy()
         self.next_events.append(self.customer_birth_times.pop(0))
@@ -253,8 +251,7 @@ class MMCCSimulation:
     def produce_server_rand_arrays(self):
         """Create the server random arrays values"""
         for _ in range(self.server_count):
-            self.rand_arrays.append([ceil(np.random.exponential(self.service_avg-0.5))
-                                for _ in range(self.customer_count)])
+            self.rand_arrays.append(discrete_exponential(self.service_avg, self.customer_count))
 
         logging.info("Finished setting server random arrays")
 
@@ -266,9 +263,9 @@ class MMCCSimulation:
             self.next_events.append(999999999)
             logging.info("Finished initialising server: %s", repr(serv))
 
-    def birth_customer(self) -> None:
+    def birth_customer(self, priority : int | None = None) -> None:
         """Initialise a customer at a given time. Only produced one instance
-        as it is only run when a customer 'joins' the simulation"""
+        as it is only run when a customer 'joins' the simulation Priority included as interface"""
         customer = Customer(self.time, len(self.customers))
         self.customers.append(customer)
         
@@ -401,6 +398,8 @@ class MMCCSimulation:
             for serv in self.servers:
                 file.write(serv.to_csv() + "\n")
 
+def discrete_exponential(avg_time : float, quant : int = 1) -> List[int]:
+    return list(np.random.geometric(1/avg_time, size=quant))
 
 def main():
     """The main body of the program, called if program run as __main__"""
@@ -409,13 +408,14 @@ def main():
                         encoding='utf-8',
                         level=logging.DEBUG)
     sim : MMCCSimulation = MMCCSimulation(
-        10000,
+        100,
         16,
         100,
         1/10,
         start = start_time
     )
     print(sum(sim.customer_birth_times)/len(sim.customer_birth_times))
+    print(sim.customer_birth_times)
     sim.run()
     sim.output_results()
     print(sim.find_loss_rate())

@@ -9,7 +9,7 @@ import time as time_module
 import numpy as np
 
 from assignment1 import (MMCCSimulation, Customer,
-                        UniversalServer)
+                        UniversalServer, discrete_exponential)
 
 class PriorityMismatchError(Exception):
     """Exception raised when a customer is being served by a server
@@ -128,33 +128,32 @@ class M1M2MCCSimulation(MMCCSimulation):
                          service_avg,
                          arrival_rates,
                          start_time)
-        
-        del(self.arrival_rate)
-        
+
+        for array in self.customer_birth_times[1:]:
+            self.next_events.append(array.pop(0))
 
     def set_rand_array(self) -> None:
         """Set the random arrays for the customer creation and the servers"""
         self.rand_arrays = []
 
-        self.rand_arrays.append([ceil(np.random.exponential((1/self.arrival_rates[0])-0.5))
-                                 for _ in range(self.customer_count)])
+        self.rand_arrays.append(discrete_exponential(1/self.arrival_rates[0], self.customer_count))
+        self.customer_birth_times : List[List[int]] = []
+        self.customer_birth_times.append(self.rand_arrays[0].copy())
 
-        self.customer_birth_times : List[int] = [].append(self.rand_arrays[0].copy)
-        self.next_events.append(self.customer_birth_times[0][0])
+        self.next_events.append(self.customer_birth_times[0].pop(0))
         self.produce_server_rand_arrays()
 
         for rate in self.arrival_rates[1:]:
-            values = ([ceil(np.random.exponential(1/rate)-0.5)
-                                     for _ in range(self.customer_count)])
-            self.rand_arrays.append(values)
-            self.customer_birth_times.append(values.copy())
+            self.rand_arrays.append(discrete_exponential(1/rate, self.customer_count))
+            self.customer_birth_times.append(self.rand_arrays[-1].copy())
 
 
     def produce_server_rand_arrays(self):
         for priority, ammount in enumerate(self.server_ammounts):
             for _ in range(ammount):
-                self.rand_arrays.append([ceil(np.random.exponential(self.service_avg[priority]))
-                                         for _ in range(self.customer_count)])
+                self.rand_arrays.append(discrete_exponential(
+                    self.service_avg[priority],
+                    self.customer_count))
 
     def create_servers(self):
         curr_id = 0
@@ -181,7 +180,7 @@ class M1M2MCCSimulation(MMCCSimulation):
         return [server for server in self.servers if (
             server.idle and server.priority <= customer.priority)]
 
-    def output_results(self, dir_path : str = "../../results/rank/"):
+    def output_results(self, dir_path : str = "../results/rank/"):
         file_name = dir_path + f"customers/{self.start_time}.csv"
         with open(file_name, "w", encoding='utf-8') as file:
             for cust in self.customers:
@@ -198,7 +197,7 @@ class M1M2MCCSimulation(MMCCSimulation):
             staged_events = self.jump_next_event()
 
             for index in staged_events:
-                if index > 1 and index < 1 + len(self.servers):
+                if 1 <= index < 1 + len(self.servers):
                     self.servers[index-1].finish_serve(self.time)
                     self.next_events[index] = 99999999
                     continue
@@ -217,7 +216,7 @@ class M1M2MCCSimulation(MMCCSimulation):
 
 def main():
     start_time = round(time_module.time())
-    logging.basicConfig(filename= f'../../logs/rank/{start_time}.log',
+    logging.basicConfig(filename= f'../logs/rank/{start_time}.log',
                         encoding='utf-8',
                         level=logging.DEBUG)
 
