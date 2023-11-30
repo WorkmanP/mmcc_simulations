@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from assignment1 import MMCCSimulation
+from MMCCSimulation import MMCCSimulation
 from mmcc_val import loss_rate
 from typing import List
 
@@ -25,6 +25,9 @@ def main():
                 full_simulation_output(True) 
             case "3":
                 server_utilisation()
+            case "4":
+                find_max_value(0.01)
+
             case _:
                 pass
         
@@ -133,12 +136,75 @@ def server_utilisation():
     plt.colorbar()
     plt.show()
 
+
+def find_max_value(max_blocking_prob : float = 0.01) -> None:
+
+    values : List[float] = []
+    for _ in range(10):
+        values.append(mmcc_max_value(max_blocking_prob))
+
+    min_val = min(values)
+    max_val = max(values)
+
+    print(f"Simulation puts the arrival rate between {min_val} and {max_val}")
+
+def mmcc_max_value(max_blocking_prob : float = 0.01) -> float:
+    """Implement a binary search of the simulation to find the highest arrival
+    rate where the blocking probability does not exceed the max_blocking_prob
+
+    @parameters:
+        max_blocking_prob -- The target blocking probability to get
+    """
+    test_arrival_rate : float = 0.5
+    cycle : int = 2
+    epsilon : float = 0.0001
+    
+    while True:
+
+        value : float = get_average_loss_rate(test_arrival_rate)
+
+        if (value + epsilon) < max_blocking_prob:
+            test_arrival_rate += 0.6**cycle
+        elif (value - epsilon) > max_blocking_prob:
+            test_arrival_rate -= 0.6**cycle
+        elif cycle > 30:
+            print("Could not resolve answer, restarting...")
+            test_arrival_rate = 0.5
+            cycle = 1
+            epsilon *= 2
+        else:
+            print(f"Found block rate of {round(value, 4)}, for arrival rate {test_arrival_rate}")
+            return test_arrival_rate
+        
+        cycle += 1
+        
+def get_average_loss_rate(ar : float, runs : int = 25):
+    """Get the average loss rate for a simulation with a given arrival rate
+
+    @parameters:
+        ar -- arrival rate, between 0-1
+        runs -- how many simulations to complete before getting the loss rate
+    """
+    avg_loss_rate : float = 0
+    for _ in range(runs): 
+        sim : MMCCSimulation = MMCCSimulation(
+                2000,
+                SERVERS,
+                SERVICE_TIME,
+                ar 
+            )
+        sim.run()
+        avg_loss_rate += sim.find_loss_rate()
+    
+    return avg_loss_rate / runs
+
 def menu():
     print("Select what to test and graph for MMCC queue:\n")
     print("[1] Blocking rates (ar: 0.01-0.1, 0.003 incr, " \
           " runs each data point), with analytical results")
     print("[2] Option (1) with additional 10x timescaled results")
     print("[3] Display heatmap of server utilisation")
+    print("[4] Get best arrival rate for a max blocking prob of 0.01")
     print("[x] Exit")
 
     return input()

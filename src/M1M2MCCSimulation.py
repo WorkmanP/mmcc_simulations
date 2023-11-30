@@ -8,7 +8,7 @@ import logging
 import time as time_module
 import numpy as np
 
-from assignment1 import (MMCCSimulation, Customer,
+from MMCCSimulation import (MMCCSimulation, Customer,
                         UniversalServer, discrete_exponential)
 
 class PriorityMismatchError(Exception):
