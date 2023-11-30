@@ -229,12 +229,16 @@ class MMCCSimulation:
         self.start_time = start
 
         self.next_events = []
+        self.servers = []
         self.customers = []
         self.time = 0
 
         self.set_rand_array()
         self.create_servers()
-
+        
+        for array in self.rand_arrays:
+            logging.info("Rands: %s", str(array))
+ 
 
     def set_rand_array(self) -> None:
         """Set the random arrays to the interal attributes of the class"""

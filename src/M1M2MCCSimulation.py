@@ -133,14 +133,19 @@ class M1M2MCCSimulation(MMCCSimulation):
                          arrival_rates,
                          start_time)
 
+        logging.info("server ammounts: %s", str(server_ammounts))
+
         for array in self.customer_birth_times[1:]:
             self.next_events.append(array.pop(0))
-
+        
     def set_rand_array(self) -> None:
         """Set the random arrays for the customer creation and the servers"""
         self.rand_arrays = []
 
-        self.rand_arrays.append(discrete_exponential(1/self.arrival_rates[0], self.customer_count))
+        if self.arrival_rates[0] == 0:
+            self.rand_arrays.append([99999999999 for _ in range(self.customer_count)])
+        else:
+            self.rand_arrays.append(discrete_exponential(1/self.arrival_rates[0], self.customer_count))
         self.customer_birth_times : List[List[int]] = []
         self.customer_birth_times.append(self.rand_arrays[0].copy())
 
@@ -148,7 +153,10 @@ class M1M2MCCSimulation(MMCCSimulation):
         self.produce_server_rand_arrays()
 
         for rate in self.arrival_rates[1:]:
-            self.rand_arrays.append(discrete_exponential(1/rate, self.customer_count))
+            if rate == 0:
+                self.rand_arrays.append([99999999999 for _ in range(self.customer_count)])
+            else:
+                self.rand_arrays.append(discrete_exponential(1/rate, self.customer_count))
             self.customer_birth_times.append(self.rand_arrays[-1].copy())
 
 
@@ -160,12 +168,12 @@ class M1M2MCCSimulation(MMCCSimulation):
                     self.customer_count))
 
     def create_servers(self):
+        
         curr_id = 0
         for priority, ammount in enumerate(self.server_ammounts):
             for x in range(ammount):
                 self.servers.append(PriorityServer(curr_id + x, priority))
             curr_id += 1
-
         for i, server in enumerate(self.servers):
             server.rands = self.rand_arrays[i+1].copy()
             self.next_events.append(999999999)
@@ -211,29 +219,60 @@ class M1M2MCCSimulation(MMCCSimulation):
                     priority = index
                 else:
                     priority = index - len(self.servers)
+                
 
                 self.birth_customer(priority)
 
-                if self.customer_birth_times[priority]:
+                if self.customer_birth_times[priority] and len(self.customers)<self.customer_count-1:
                     self.next_events[index] = self.time + self.customer_birth_times[priority].pop(0)
                 else:
                     self.next_events[index] = 999999999
 
-def main():
+    def get_abp(self):
+        new_calls_accepted : int = 0
+        new_calls_total : int = 0
+
+        handover_accepted : int = 0
+        handover_total : int = 0
+
+        for cust in self.customers:
+            if cust.priority == 0:
+                new_calls_total += 1
+
+                if not cust.rejected:
+                    new_calls_accepted += 1
+
+            else:
+                handover_total += 1
+
+                if not cust.rejected:
+                    handover_total += 1
+        
+        if new_calls_total == 0:
+            cbp = 0
+        else:
+            cbp : float = 1 - (new_calls_accepted / new_calls_total)
+        if handover_total == 0:
+            hbp = 0
+        else:
+            hbp : float = 1 - (handover_accepted / handover_total)
+        return cbp + 10 * hbp
+
+def test():
     start_time = round(time_module.time())
     logging.basicConfig(filename= f'../logs/rank/{start_time}.log',
                         encoding='utf-8',
                         level=logging.DEBUG)
 
     sim : M1M2MCCSimulation = M1M2MCCSimulation(
-        100,
-        [5,5],
-        [5,5],
-        [0.3, 0.3],
+        10,
+        [4,2],
+        [100,100],
+        [0.1, 0.03],
         round(time_module.time()))
     sim.run()
     sim.output_results()
     return
 
 if __name__ == "__main__":
-    main()
+    test()

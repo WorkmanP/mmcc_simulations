@@ -2,10 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from MMCCSimulation import MMCCSimulation
-from mmcc_val import loss_rate
+from mmcc_val import loss_rate, find_for_loss_rate
 from typing import List
-
-
 
 SERVERS = 16
 CUSTOMERS = 2000
@@ -27,7 +25,8 @@ def main():
                 server_utilisation()
             case "4":
                 find_max_value(0.01)
-
+            case "5":
+                print(find_for_loss_rate(1/SERVICE_TIME, SERVERS, 0.01))
             case _:
                 pass
         
@@ -164,9 +163,9 @@ def mmcc_max_value(max_blocking_prob : float = 0.01) -> float:
         value : float = get_average_loss_rate(test_arrival_rate)
 
         if (value + epsilon) < max_blocking_prob:
-            test_arrival_rate += 0.6**cycle
+            test_arrival_rate += 0.5**cycle
         elif (value - epsilon) > max_blocking_prob:
-            test_arrival_rate -= 0.6**cycle
+            test_arrival_rate -= 0.5**cycle
         elif cycle > 30:
             print("Could not resolve answer, restarting...")
             test_arrival_rate = 0.5
@@ -205,6 +204,7 @@ def menu():
     print("[2] Option (1) with additional 10x timescaled results")
     print("[3] Display heatmap of server utilisation")
     print("[4] Get best arrival rate for a max blocking prob of 0.01")
+    print("[5] Get analytical best arrival rate for max blocking prob 0.01")
     print("[x] Exit")
 
     return input()
