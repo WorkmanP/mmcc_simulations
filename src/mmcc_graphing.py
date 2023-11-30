@@ -5,28 +5,44 @@ from assignment1 import MMCCSimulation
 from mmcc_val import loss_rate
 from typing import List
 
+
+
+SERVERS = 16
+CUSTOMERS = 2000
+SERVICE_TIME = 100
+RUNS = 25
+
 def main():
-    choice = menu()
 
-    # CONFIG
-    RUNS = 25
-    CUSTOMERS = 10000
-    SERVERS = 16
-    SERVICE_TIME = 100
-
-    while choice != "1" and choice != "x":
+    while True:
         choice = menu()
+        match choice:
+            case "x":
+                return
+            case "1":
+                full_simulation_output()
+            case "2":
+                full_simulation_output(True) 
+            case "3":
+                server_utilisation()
+            case _:
+                pass
+        
 
-    if choice == "x":
-        return
 
+def full_simulation_output( ts : bool = False ):
+    """Docstring to do.
+    """
     sim_data_points : List[float] = []
     ts_data_points : List[float] = []
     ana_data_points : List[float] = []
 
     total_sim_time : int = 0
-    for x in range(10, 101, 3):
-        ar = x / 1000
+
+    simts : MMCCSimulation | None = None
+
+    x_values : List[float] = [x/1000 for x in range(10,101,3)]
+    for x in x_values:
         avg_block_rate = 0
         ts_avg_block_rate = 0
 
@@ -37,48 +53,92 @@ def main():
                     CUSTOMERS,
                     SERVERS,
                     SERVICE_TIME,
-                    ar
-                    )
+                    x)
             sim.run()
             avg_block_rate += sim.find_loss_rate()
 
-            simts : MMCCSimulation = MMCCSimulation(
+            if ts:
+                simts : MMCCSimulation = MMCCSimulation(
+                        CUSTOMERS,
+                        SERVERS,
+                        SERVICE_TIME*10,
+                        x/10)
+            
+                simts.run()
+                ts_avg_block_rate += simts.find_loss_rate()
+
+        if ts:
+            ts_avg_block_rate /= RUNS
+            ts_data_points.append(round(ts_avg_block_rate, 4))
+
+        avg_block_rate /= RUNS
+
+        sim_data_points.append(round(avg_block_rate, 4))
+        ana_data_points.append(round(loss_rate(x, 1/SERVICE_TIME, SERVERS),4))
+
+    
+    if ts:
+        lines = [sim_data_points, ts_data_points, ana_data_points]
+        labels = ["Standard Simulation", "10x Increased timesteps", "Analytical"]
+    else:
+        lines = [sim_data_points, ana_data_points]
+        labels = ["Standard Simulation", "Analytical"]
+    
+    plot_lines(lines, labels, x_values)
+
+
+def plot_lines(array_of_lines : List[List[float]], line_labels : List[str], x_axis : List[float]):
+    """Print the arrays of lines given on the same axis"""
+    for line, lab in zip(array_of_lines, line_labels):
+        plt.plot(x_axis, line, label=lab)
+    ax = plt.gca()
+    
+    
+    max_dif = max(array_of_lines[-1])/100
+    ax.set_ylim([min(array_of_lines[-1])-max_dif, max_dif * 101])
+    plt.legend()
+    plt.show()
+    
+def server_utilisation():
+    """Produce a heatmap for the server utilisation of a various amounts of arrival rates"""
+    total_sim_time : int = 0
+
+    x_values = [x/1000 for x in range(10, 101, 3)]
+    
+    server_utils : List[List[float]] = []
+    for x in x_values:
+        server_utilisation : List[float] = [0.0 for x in range(SERVERS)]
+        
+        for _ in range(RUNS):
+            sim : MMCCSimulation = MMCCSimulation(
                     CUSTOMERS,
                     SERVERS,
-                    SERVICE_TIME*10,
-                    ar/10)
-            
-            simts.run()
+                    SERVICE_TIME,
+                    x)
+            sim.run()
 
-            for i, server in enumerate(sim.servers):
-                server_util_list[i] += server.serve_time
+            for index, server in enumerate(sim.servers):
+                server_utilisation[index] += server.serve_time / sim.time
 
-            total_sim_time += sim.time
-            ts_avg_block_rate += simts.find_loss_rate()
+        for index, value in enumerate(server_utilisation):
+            server_utilisation[index] = round(value / RUNS, 4)
 
-        ts_avg_block_rate /= RUNS
-        avg_block_rate /= RUNS
-        norm_serv_utilisation = [round(time / total_sim_time,4) for time in server_util_list]
-
-        ts_data_points.append(round(ts_avg_block_rate, 4))
-        sim_data_points.append(round(avg_block_rate, 4))
-        ana_data_points.append(round(loss_rate(ar, 1/SERVICE_TIME, SERVERS),4))
-
-    print(sim_data_points)
-    print(ts_data_points)
-    print(ana_data_points)
+        server_utils.append(server_utilisation)
+    
 
 
-
+    output = np.rot90(server_utils)
+    
+    plt.imshow(output, interpolation=('nearest'))
+    plt.colorbar()
+    plt.show()
 
 def menu():
     print("Select what to test and graph for MMCC queue:\n")
-    print("[1] Blocking rates of the simulation (ar: 0.01-0.1, 0.003 incr, " \
-          "25 runs each data point)")
-    print("[2] Analytical blocking rates of MMCC queue ar: (0.01-0.1, 0.003 incr)")
-    print("[3] Options 1 and 2 on the same graph")
-    print("[4] 10x Time stretched blocking rate of the simulation, on the same graph as 3")
-    
+    print("[1] Blocking rates (ar: 0.01-0.1, 0.003 incr, " \
+          " runs each data point), with analytical results")
+    print("[2] Option (1) with additional 10x timescaled results")
+    print("[3] Display heatmap of server utilisation")
     print("[x] Exit")
 
     return input()
