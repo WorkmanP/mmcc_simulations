@@ -115,9 +115,10 @@ class PriorityServer(UniversalServer):
 
 class M1M2MCCSimulation(MMCCSimulation):
     """"""
-    server_ammounts : List[int]
+    server_ammounts : List[int] # [14,2]
     service_avg : List[int] # Override old type as prioirities could have diff rates
     servers : List[PriorityServer] = []
+    customers : List[PriorityCustomer]
 
     def __init__(self,
                  customer_count : int,
@@ -143,7 +144,7 @@ class M1M2MCCSimulation(MMCCSimulation):
         """Set the random arrays for the customer creation and the servers"""
         self.rand_arrays = []
 
-        if self.arrival_rates[0] == 0:
+        if self.arrival_rates[0] == 0.0:
             self.rand_arrays.append([99999999999 for _ in range(self.customer_count)])
         else:
             self.rand_arrays.append(discrete_exponential(1/self.arrival_rates[0], self.customer_count))
@@ -247,16 +248,18 @@ class M1M2MCCSimulation(MMCCSimulation):
                 handover_total += 1
 
                 if not cust.rejected:
-                    handover_total += 1
+                    handover_accepted += 1
         
         if new_calls_total == 0:
             cbp = 0
         else:
             cbp : float = 1 - (new_calls_accepted / new_calls_total)
+
         if handover_total == 0:
             hbp = 0
         else:
             hbp : float = 1 - (handover_accepted / handover_total)
+        
         return cbp + 10 * hbp
 
 def test():
