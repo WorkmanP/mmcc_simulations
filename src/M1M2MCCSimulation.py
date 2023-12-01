@@ -9,7 +9,8 @@ import time as time_module
 import numpy as np
 
 from MMCCSimulation import (MMCCSimulation, Customer,
-                        UniversalServer, discrete_exponential)
+                        UniversalServer, discrete_exponential,
+                        poisson_process)
 
 class PriorityMismatchError(Exception):
     """Exception raised when a customer is being served by a server

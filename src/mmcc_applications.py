@@ -39,8 +39,6 @@ def full_simulation_output( ts : bool = False ):
     ts_data_points : List[float] = []
     ana_data_points : List[float] = []
 
-    total_sim_time : int = 0
-
     simts : MMCCSimulation | None = None
 
     x_values : List[float] = [x/1000 for x in range(10,101,3)]
@@ -48,14 +46,13 @@ def full_simulation_output( ts : bool = False ):
         avg_block_rate = 0
         ts_avg_block_rate = 0
 
-        server_util_list : List[float] = [0 for _ in range(SERVERS)]
-
         for _ in range(RUNS):
             sim : MMCCSimulation = MMCCSimulation(
                     CUSTOMERS,
                     SERVERS,
                     SERVICE_TIME,
                     x)
+            
             sim.run()
             avg_block_rate += sim.find_loss_rate()
 
@@ -86,6 +83,8 @@ def full_simulation_output( ts : bool = False ):
         lines = [sim_data_points, ana_data_points]
         labels = ["Standard Simulation", "Analytical"]
     
+    for line in lines:
+        input(line)
     plot_lines(lines, labels, x_values)
 
 

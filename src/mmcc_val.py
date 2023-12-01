@@ -31,7 +31,7 @@ def find_p_k(br : float, sr : float, k : int, p_nought : float):
 
 def loss_rate(br : float, sr: float, max_servers : int) -> float:
 
-    numerator = (br/sr) ** max_servers / math.factorial(max_servers)
+    numerator = ((br/sr) ** max_servers) / math.factorial(max_servers)
     denominator = 0
     for k in range(max_servers + 1):
         temp = (br/sr) ** k

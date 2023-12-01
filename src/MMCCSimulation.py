@@ -244,6 +244,8 @@ class MMCCSimulation:
         """Set the random arrays to the interal attributes of the class"""
         self.rand_arrays = []
         logging.info("Setting random arrays for the simulation")
+        # Generate Customers
+
         self.rand_arrays.append(discrete_exponential(1/self.arrival_rate, self.customer_count))
 
         self.customer_birth_times = self.rand_arrays[0].copy()
@@ -405,6 +407,9 @@ class MMCCSimulation:
 def discrete_exponential(avg_time : float, quant : int = 1) -> List[int]:
     return list(np.random.geometric(1/avg_time, size=quant))
 
+def poisson_process(avg_time : int, quant : int = 1) -> List[int]:
+    return list(np.random.poisson(avg_time, size=quant))
+
 def main():
     """The main body of the program, called if program run as __main__"""
     start_time = round(timeMod.time())
@@ -412,7 +417,7 @@ def main():
                         encoding='utf-8',
                         level=logging.DEBUG)
     sim : MMCCSimulation = MMCCSimulation(
-        100,
+        1000,
         16,
         100,
         1/10,
