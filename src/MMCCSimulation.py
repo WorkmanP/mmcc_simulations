@@ -90,6 +90,18 @@ class Customer:
         f"{self.rejected},{self.served_by},{self.service_time},{self.death_time}"
 
 class UniversalServer:
+    """A Class representing all servers within the MMCC queue
+    
+    @attributes:
+        id      -- the unique server id
+        idle    -- whether the server is idle
+        current_customer    -- The current customer object being served
+        serve_time      -- the total time spent serving customers
+        idle_time       -- the total time spent idle
+        last_update_time   -- the last time since update()
+        cust_served     -- the ammount of customers served
+        rands           -- the list of random numbers used for service time
+    """
     id : int
     idle : bool = True
     current_customer : Customer | None = None
@@ -417,13 +429,12 @@ def main():
                         encoding='utf-8',
                         level=logging.DEBUG)
     sim : MMCCSimulation = MMCCSimulation(
-        1000,
-        16,
+        15,
+        4,
         100,
         1/10,
         start = start_time
     )
-    print(sum(sim.customer_birth_times)/len(sim.customer_birth_times))
     print(sim.customer_birth_times)
     sim.run()
     sim.output_results()

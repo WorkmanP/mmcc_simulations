@@ -114,7 +114,15 @@ class PriorityServer(UniversalServer):
             f"{self.cust_served},{self.serve_time}"
 
 class M1M2MCCSimulation(MMCCSimulation):
-    """"""
+    """ The object containing the logic for a M1/M2/M/C/C Queue
+    
+    @attributes:
+        server_ammounts     -- A list where the index is the priority and the value is 
+                            the ammount of servers for that priority
+        service_avg         -- A list of the average service time for each server priority
+        servers             -- Altered to [PriorityServer] type
+        customers           -- Altered to [PriorityCustomer] type
+    """
     server_ammounts : List[int] # [14,2]
     service_avg : List[int] # Override old type as prioirities could have diff rates
     servers : List[PriorityServer] = []
@@ -170,7 +178,6 @@ class M1M2MCCSimulation(MMCCSimulation):
                     self.customer_count))
 
     def create_servers(self):
-        
         curr_id = 0
         for priority, ammount in enumerate(self.server_ammounts):
             for x in range(ammount):
