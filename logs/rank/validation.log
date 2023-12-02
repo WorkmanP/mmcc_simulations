@@ -1,0 +1,98 @@
+INFO:root:Initialising simulation
+INFO:root:Rands: [3, 1, 12, 11, 40, 12, 4, 13, 2, 3]
+INFO:root:Rands: [21, 87, 13, 35, 39, 42, 26, 44, 14, 21]
+INFO:root:Rands: [165, 68, 3, 29, 10, 21, 5, 21, 48, 5]
+INFO:root:Rands: [85, 33, 17, 54, 46, 27, 19, 1, 28, 9]
+INFO:root:Rands: [53, 11, 26, 116, 23, 94, 106, 24, 26, 225]
+INFO:root:Rands: [16, 29, 10, 279, 18, 24, 60, 38, 55, 1]
+INFO:root:Rands: [29, 15, 4, 14, 16, 18, 4, 3, 5, 7]
+INFO:root:server ammounts: [3, 2]
+INFO:root:Moving time forward: 0 -> 3
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Available servers found for customer CustomerObject(0,0,3)
+INFO:root:Updating server: PriorityServer(0, 0) internal attributes
+INFO:root:Serving customer CustomerObject(0,0,3) with server: PriorityServer(0, 0)
+INFO:root:Assigned server: PriorityServer(0, 0) customer: CustomerObject(0,0,3). Time to serve: 21, finish time: 24
+INFO:root:Moving time forward: 3 -> 4
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Available servers found for customer CustomerObject(1,0,4)
+INFO:root:Updating server: PriorityServer(1, 0) internal attributes
+INFO:root:Serving customer CustomerObject(1,0,4) with server: PriorityServer(1, 0)
+INFO:root:Assigned server: PriorityServer(1, 0) customer: CustomerObject(1,0,4). Time to serve: 165, finish time: 169
+INFO:root:Moving time forward: 4 -> 16
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Available servers found for customer CustomerObject(2,0,16)
+INFO:root:Updating server: PriorityServer(2, 0) internal attributes
+INFO:root:Serving customer CustomerObject(2,0,16) with server: PriorityServer(2, 0)
+INFO:root:Assigned server: PriorityServer(2, 0) customer: CustomerObject(2,0,16). Time to serve: 85, finish time: 101
+INFO:root:Moving time forward: 16 -> 24
+INFO:root:Staged event(s) found at index [1]
+INFO:root:Completed server: PriorityServer(0, 0) service of customer: CustomerObject(0,0,3)
+INFO:root:Killing customer CustomerObject(0,0,3)
+INFO:root:Updating server: PriorityServer(0, 0) internal attributes
+INFO:root:Moving time forward: 24 -> 27
+INFO:root:Staged event(s) found at index [0]
+INFO:root:Available servers found for customer CustomerObject(3,0,27)
+INFO:root:Updating server: PriorityServer(0, 0) internal attributes
+INFO:root:Serving customer CustomerObject(3,0,27) with server: PriorityServer(0, 0)
+INFO:root:Assigned server: PriorityServer(0, 0) customer: CustomerObject(3,0,27). Time to serve: 87, finish time: 114
+INFO:root:Moving time forward: 27 -> 29
+INFO:root:Staged event(s) found at index [6]
+INFO:root:Available servers found for customer CustomerObject(4,1,29)
+INFO:root:Updating server: PriorityServer(1, 1) internal attributes
+INFO:root:Serving customer CustomerObject(4,1,29) with server: PriorityServer(1, 1)
+INFO:root:Assigned server: PriorityServer(1, 1) customer: CustomerObject(4,1,29). Time to serve: 53, finish time: 82
+INFO:root:Moving time forward: 29 -> 44
+INFO:root:Staged event(s) found at index [6]
+INFO:root:Available servers found for customer CustomerObject(5,1,44)
+INFO:root:Updating server: PriorityServer(2, 1) internal attributes
+INFO:root:Serving customer CustomerObject(5,1,44) with server: PriorityServer(2, 1)
+INFO:root:Assigned server: PriorityServer(2, 1) customer: CustomerObject(5,1,44). Time to serve: 16, finish time: 60
+INFO:root:Moving time forward: 44 -> 48
+INFO:root:Staged event(s) found at index [6]
+INFO:root:No available servers at this time for customer CustomerObject(6,1,48)
+INFO:root:Rejecting and killing customer CustomerObject(6,1,48)
+INFO:root:Moving time forward: 48 -> 60
+INFO:root:Staged event(s) found at index [5]
+INFO:root:Completed server: PriorityServer(2, 1) service of customer: CustomerObject(5,1,44)
+INFO:root:Killing customer CustomerObject(5,1,44)
+INFO:root:Updating server: PriorityServer(2, 1) internal attributes
+INFO:root:Moving time forward: 60 -> 62
+INFO:root:Staged event(s) found at index [6]
+INFO:root:Available servers found for customer CustomerObject(7,1,62)
+INFO:root:Updating server: PriorityServer(2, 1) internal attributes
+INFO:root:Serving customer CustomerObject(7,1,62) with server: PriorityServer(2, 1)
+INFO:root:Assigned server: PriorityServer(2, 1) customer: CustomerObject(7,1,62). Time to serve: 29, finish time: 91
+INFO:root:Moving time forward: 62 -> 67
+INFO:root:Staged event(s) found at index [0]
+INFO:root:No available servers at this time for customer CustomerObject(8,0,67)
+INFO:root:Rejecting and killing customer CustomerObject(8,0,67)
+INFO:root:Moving time forward: 67 -> 78
+INFO:root:Staged event(s) found at index [6]
+INFO:root:No available servers at this time for customer CustomerObject(9,1,78)
+INFO:root:Rejecting and killing customer CustomerObject(9,1,78)
+INFO:root:Moving time forward: 78 -> 82
+INFO:root:Staged event(s) found at index [4]
+INFO:root:Completed server: PriorityServer(1, 1) service of customer: CustomerObject(4,1,29)
+INFO:root:Killing customer CustomerObject(4,1,29)
+INFO:root:Updating server: PriorityServer(1, 1) internal attributes
+INFO:root:Moving time forward: 82 -> 91
+INFO:root:Staged event(s) found at index [5]
+INFO:root:Completed server: PriorityServer(2, 1) service of customer: CustomerObject(7,1,62)
+INFO:root:Killing customer CustomerObject(7,1,62)
+INFO:root:Updating server: PriorityServer(2, 1) internal attributes
+INFO:root:Moving time forward: 91 -> 101
+INFO:root:Staged event(s) found at index [3]
+INFO:root:Completed server: PriorityServer(2, 0) service of customer: CustomerObject(2,0,16)
+INFO:root:Killing customer CustomerObject(2,0,16)
+INFO:root:Updating server: PriorityServer(2, 0) internal attributes
+INFO:root:Moving time forward: 101 -> 114
+INFO:root:Staged event(s) found at index [1]
+INFO:root:Completed server: PriorityServer(0, 0) service of customer: CustomerObject(3,0,27)
+INFO:root:Killing customer CustomerObject(3,0,27)
+INFO:root:Updating server: PriorityServer(0, 0) internal attributes
+INFO:root:Moving time forward: 114 -> 169
+INFO:root:Staged event(s) found at index [2]
+INFO:root:Completed server: PriorityServer(1, 0) service of customer: CustomerObject(1,0,4)
+INFO:root:Killing customer CustomerObject(1,0,4)
+INFO:root:Updating server: PriorityServer(1, 0) internal attributes

@@ -277,9 +277,9 @@ def test():
 
     sim : M1M2MCCSimulation = M1M2MCCSimulation(
         10,
-        [4,2],
-        [100,100],
-        [0.1, 0.03],
+        [3,2],
+        [50,50],
+        [0.1, 0.08],
         round(time_module.time()))
     sim.run()
     sim.output_results()
