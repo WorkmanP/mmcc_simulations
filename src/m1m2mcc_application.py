@@ -18,9 +18,11 @@ def question2_2(arrival_rates : List[float | None], target_abp : float) -> float
         raise ValueError("arrival_rates must contain only one none value")
 
     arrival_rates[none_indices[0]] = 0.0
-    if get_average_abp(arrival_rates) > target_abp:
+    init_abp = get_average_abp(arrival_rates)
+    if init_abp > target_abp:
         print("Target ABP is not possible to achieve as set arrival rates")
         print("already cause the ABP to be higher than the target")
+        print(f"{init_abp} > {target_abp} ")
         return
 
     cycle : int = 2
@@ -58,7 +60,7 @@ def get_average_abp(ars : List[float]) -> float:
         sim.run()
         abp += sim.get_abp()
 
-    return abp / 10
+    return abp / 50
 
 
 
